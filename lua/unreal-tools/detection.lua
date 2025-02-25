@@ -15,7 +15,7 @@ function M.is_unreal_project()
     return true
   end
 
-  if vim.fn.isdirectory(path .. "/Source") == 1 and vim.fn.isdirectory(path .."/Content") == 1 then
+  if vim.fn.isdirectory(path .. "/Source") == 1 and vim.fn.isdirectory(path .. "/Content") == 1 then
     return true
   end
 
@@ -51,10 +51,10 @@ function M.find_engine_path(config)
   end
 
   -- Otherwise check all configured ue_paths
-  for _,  path in ipairs(config.ue_paths) do
+  for _, path in ipairs(config.ue_paths) do
     if vim.fn.isdirectory(path) == 1 then
       local versions = utils.get_subdirectories(path)
-      table.sort(versions, function(a,b) return a > b end) -- sort descending for latest version
+      table.sort(versions, function(a, b) return a > b end) -- sort descending for latest version
 
       for _, version in ipairs(versions) do
         if version:match("^%d+%.%d+$") then
