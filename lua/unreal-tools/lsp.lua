@@ -59,15 +59,84 @@ function M.setup(config, project)
   })
 
   vim.api.nvim_create_autocmd("Filetype", {
-    pattern = {"cpp", "h", "hpp"},
+    pattern = { "cpp", "h", "hpp" },
     callback = function()
       vim.bo.tabstop = 4
       vim.bo.shiftwidth = 4
       vim.bo.expandtab = true
 
       vim.bo.commentstring = "// %s"
-      end
+    end
   })
+end
+
+function M.on_attach(client, bufnr, config, project)
+  vim.cmd([[
+    syntax keyword ueKeyword UCLASS UPROPERTY UFUNCTION USTRUCT UENUM UMETA
+      highlight link ueKeyword Statement
+  ]])
+end
+
+function M.generate_compile_commands(config, project)
+  local engine_path = detection.find_engine_path(config)
+  if not engine_path then
+    vim.notify("Unreal-Tools: Cannot generate compile_commands.json - UE Engine path not found", vim.log.levels.ERROR)
+    return false
+  end
+
+  local project_name = project.name
+
+  local script_path = vim.fn.fnamemodify(debug.getinfo(1, 'S').source:sub(2), ":h:h:h:h") ..
+      "scripts/generate_compile_commands.sh"
+
+  if not utils.file_exists(script_path) then
+    vim.notify("Unreal-Tools: compile_commands.sh script not found at " .. script_path,
+      vim.log.levels.ERROR)
+    return false
+  end
+
+  os.execute("chmod +x " .. script_path)
+
+  local cmd = script_path .. " " ..
+      "\"" .. engine_path .. "\" " ..
+      "\"" .. project.path .. "\" " ..
+      "\"" .. project_name .. "\""
+
+  vim.notify("Unreal-Tools: Generating compile_commands.json...", vim.log.levels.INFO)
+
+  vim.fn.jobstart(cmd, {
+    on_exit = function(_, code)
+      if code == 0 then
+        vim.notify("Unreal-Tools: compile_commands.json generated successfully", vim.log.levels.INFO)
+
+        vim.cmd("LspRestart")
+      else
+        vim.notify("Unreal-Tools: Failed to generate compile_commands.json", vim.log.levels.ERROR)
+      end
+    end,
+    stdout_buffered = true,
+    on_stdout = function (_, data)
+      if data then
+        for _, line in ipairs(data) do
+          if line and line ~= "" then
+            vim.notify("Unreal-Tools: " .. line, vim.log.levels.INFO)
+          end
+        end
+      end
+    end,
+    stderr_buffered = true,
+    on_stderr = function (_, data)
+      if data then
+        for _, line in ipairs(data) do
+          if line and line ~= "" then
+            vim.notify("Unreal-Tools: " .. line, vim.log.levels.INFO)
+          end
+        end
+      end
+    end,
+  })
+
+  return true
 end
 
 return M
