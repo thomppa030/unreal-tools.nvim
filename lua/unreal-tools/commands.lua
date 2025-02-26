@@ -1,5 +1,6 @@
 local M = {}
 local lsp = require('unreal-tools.lsp')
+local build = require('unreal-tools.buildproject')
 
 function M.setup(config, project)
   -- Don't proceed if commands are disabled in config
@@ -81,6 +82,25 @@ function M.setup(config, project)
   end, {
     desc = "Open UE project Content directory"
   })
+
+  vim.api.nvim_create_user_command("UEBuildEditor", function()
+    build.build_editor(config, project)
+  end, {
+      desc = "Build the Unreal Editor target in a terminal Buffer"
+    })
+
+  vim.api.nvim_create_user_command("UERunProject", function()
+    build.start_editor(config, project)
+  end, {
+      desc = "Runs the Unreal Editor target in a terminal Buffer"
+    })
+
+  vim.api.nvim_create_user_command("UEBuildAndRunProject", function()
+    build.build_and_start_editor(config, project)
+  end, {
+      desc = "Builds and Runs the Unreal Editor Target"
+    })
 end
+
 
 return M
