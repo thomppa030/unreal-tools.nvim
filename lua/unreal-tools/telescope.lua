@@ -39,7 +39,7 @@ function M.register_pickers(config, project)
 
   local function make_ue_picker(opts)
     return function()
-      builtin[opts.pickers]({
+      builtin[opts.picker]({
         prompt_title = opts.title,
         cwd = opts.cwd or project.path,
         file_ignore_patterns = opts.ignored_patterns or config.telescope.ignored_patterns,
