@@ -1,6 +1,6 @@
 local M = {}
-local utils = require('nvim-unreal.utils')
-local detection = require('nvim-unreal.detection')
+local utils = require('unreal-tools.utils')
+local detection = require('unreal-tools.detection')
 
 function M.setup(config, project)
   if not config.lsp.enable then

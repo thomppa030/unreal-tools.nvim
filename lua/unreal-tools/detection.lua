@@ -1,6 +1,6 @@
 local M = {}
 
-local utils = require('nvim-unreal.utils')
+local utils = require('unreal-tools.utils')
 
 function M.is_unreal_project()
   local path = vim.fn.getcwd()
