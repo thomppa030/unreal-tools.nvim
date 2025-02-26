@@ -86,13 +86,10 @@ function M.generate_compile_commands(config, project)
 
   local project_name = project.name
 
-  local script_path = vim.fn.fnamemodify(debug.getinfo(1, 'S').source:sub(2), ":h:h:h:h") ..
-      "scripts/generate_compile_commands.sh"
+  local script_path = vim.api.nvim_call_function('findfile', {'scripts/generate_compile_commands.sh', vim.o.runtimepath})
 
-  if not utils.file_exists(script_path) then
-    vim.notify("Unreal-Tools: compile_commands.sh script not found at " .. script_path,
-      vim.log.levels.ERROR)
-    return false
+  if script_path == "" then
+    vim.notify("Unreal-Tools: generate_compile_commands.sh script not found in plugin directory", vim.log.levels.ERROR)
   end
 
   os.execute("chmod +x " .. script_path)
