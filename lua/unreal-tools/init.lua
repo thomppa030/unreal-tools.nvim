@@ -24,7 +24,7 @@ function M.setup(opts)
 
     lsp.setup(M.config, M.project)
     telescope.setup(M.config, M.project)
-    snippets.setup(M.config, M.project)
+--    snippets.setup(M.config, M.project)
     commands.setup(M.config, M.project)
 
     if M.config.use_keymaps then

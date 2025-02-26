@@ -55,7 +55,8 @@ M.defaults = {
   },
 
   use_keymaps = true,
-  keymaps_prefix = "<leader>u",
+
+  keymap_prefix = "<leader>u",
 
   notify_non_ue_project = false
 }
