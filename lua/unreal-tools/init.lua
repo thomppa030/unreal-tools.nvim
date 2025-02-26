@@ -10,7 +10,7 @@ function M.setup(opts)
   local detection = require('unreal-tools.detection')
   local lsp = require('unreal-tools.lsp')
   local telescope = require('unreal-tools.telescope')
-  local snippets = require('unreal-tools.snippets')
+--  local snippets = require('unreal-tools.snippets')
   local commands = require('unreal-tools.commands')
   local keymaps = require('unreal-tools.keymaps')
 
