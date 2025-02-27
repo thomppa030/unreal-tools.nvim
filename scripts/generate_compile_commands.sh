@@ -64,7 +64,7 @@ log "Project file: $UPROJECT_PATH"
 cd "$PROJECT_DIR" || error "Failed to change to project directory"
 
 # Use the updated command format
-CMD="$BUILD_SCRIPT -mode=GenerateClangDatabase -project=\"$UPROJECT_PATH\" -game -engine ${PROJECT_NAME}Editor $PLATFORM Development"
+CMD="$BUILD_SCRIPT -mode=GenerateClangDatabase -NoExecCodeGenActions -project=\"$UPROJECT_PATH\" -game -engine ${PROJECT_NAME}Editor $PLATFORM Development"
 log "Running: $CMD"
 
 # Run the build with output timestamps
