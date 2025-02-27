@@ -6,25 +6,37 @@ function M.is_unreal_project()
   local path = vim.fn.getcwd()
 
   local project_name = vim.fn.fnamemodify(path, ":t")
+
   if vim.fn.filereadable(path .. "/" .. project_name .. ".uproject") == 1 then
-    return true
+    return true, "Found matching .uproject file"
   end
 
   local uproject_files = vim.fn.glob(path .. "/*.uproject", false, true)
   if #uproject_files > 0 then
-    return true
+    return true, "Found .uproject file"
   end
 
   if vim.fn.isdirectory(path .. "/Source") == 1 and vim.fn.isdirectory(path .. "/Content") == 1 then
-    return true
+    return true, "Found Source and Content directories"
   end
 
-  return false
+  local build_files = vim.fn.glob(path .. "/Source/*/*.Build.cs", true, true)
+  if #build_files > 0 then
+    return true, "Found .Build.cs files in Source directory"
+  end
+
+  if vim.fn.isdirectory(path .. "/Source") == 0 then
+    return false, "No Source directory found"
+  elseif vim.fn.isdirectory(path .. "/Source") == 0 then
+    return false, "No Content directory found"
+  else
+    return false, "No. uproject file or UE project structure found"
+  end
 end
 
 function M.get_project_name()
   local path = vim.fn.getcwd()
-  local project_name = vim.fn.fnamemodify(path, ":it")
+  local project_name = vim.fn.fnamemodify(path, ":t")
 
   if vim.fn.filereadable(path .. "/" .. project_name .. ".uproject") == 1 then
     return project_name
@@ -36,6 +48,36 @@ function M.get_project_name()
   end
 
   return project_name
+end
+
+function M.parse_uproject_file()
+  local path = vim.fn.getcwd()
+  local project_name = vim.fn.fnamemodify(path, ":t")
+  local uproject_path = path .. "/" .. project_name .. ".uproject"
+
+  if vim.fn.filereadable(uproject_path) ~= 1 then
+    local uproject_files = vim.fn.glob(path .. "/*.uproject", false, true)
+    if #uproject_files > 0 then
+      uproject_path = uproject_files[1]
+    else
+      return nil, "No .uproject file found"
+    end
+  end
+
+  local file = io.open(uproject_path, "r")
+  if not file then
+    return nil, "Failed to open .uproject file"
+  end
+
+  local content = file:read("*all")
+  file:close()
+
+  local success, json_data = pcall(vim.fn.json_decode(), content)
+  if not success or not json_data then
+    return nil, "Failed to parse .uproject JSON"
+  end
+
+  return json_data, nil
 end
 
 -- Find the UE Engine path from the config
