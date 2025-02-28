@@ -1,6 +1,6 @@
 # Unreal Tools for Neovim
 
-A comprehensive Unreal Engine development environment for Neovim, providing seamless integration with UE projects.
+A comprehensive Unreal Engine development environment for Neovim.
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
 ![Neovim Version](https://img.shields.io/badge/Neovim-%3E%3D0.10.0-green)
