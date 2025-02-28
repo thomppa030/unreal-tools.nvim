@@ -29,7 +29,7 @@ A comprehensive Unreal Engine development environment for Neovim.
 
 ## Overview
 
-Unreal Tools provides Unreal Engine development capabilities within Neovim. It includes project detection, LSP integration, build utilities, and navigation features for efficient UE development on Linux.
+Unreal Tools provides Unreal Engine development capabilities within Neovim. It includes project detection, LSP integration, build utilities, and navigation features **currently only on Linux**.
 
 ## Features
 
