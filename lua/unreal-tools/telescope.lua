@@ -39,7 +39,7 @@ function M.register_pickers(config, project)
 
   local function make_ue_picker(opts)
     return function()
-      builtin[opts.pickers]({
+      builtin[opts.picker]({
         prompt_title = opts.title,
         cwd = opts.cwd or project.path,
         file_ignore_patterns = opts.ignored_patterns or config.telescope.ignored_patterns,
@@ -60,7 +60,7 @@ function M.register_pickers(config, project)
       { "*.generated.h" }
     ),
   })
-  vim.keymap.set('n', prefix .. "f", M.find_source_files, { desc = "Find UE source files" })
+  vim.keymap.set('n', prefix .. "ff", M.find_source_files, { desc = "Find UE source files" })
 
   M.grep_source = make_ue_picker({
     picker = "live_grep",
@@ -70,7 +70,7 @@ function M.register_pickers(config, project)
       return { "--glob", "!*{generated.h}" }
     end,
   })
-  vim.keymap.set('n', prefix .. "g", M.grep_source, { desc = "Grep UE source" })
+  vim.keymap.set('n', prefix .. "fg", M.grep_source, { desc = "Grep UE source" })
 
   M.find_classes = make_ue_picker({
     picker = "find_files",
@@ -82,7 +82,7 @@ function M.register_pickers(config, project)
       { "*.generated.h" }
     ),
   })
-  vim.keymap.set('n', prefix .. "c", M.find_classes, { desc = "Find UE Classes" })
+  vim.keymap.set('n', prefix .. "fc", M.find_classes, { desc = "Find UE Classes" })
 
   M.find_header_source = function()
     local current_file = vim.fn.expand('%:t')
@@ -107,7 +107,7 @@ function M.register_pickers(config, project)
       cwd = project.source_dir,
     })
   end
-  vim.keymap.set('n', prefix .. "s", M.find_header_source, { desc = "Find corresponding header/source" })
+  vim.keymap.set('n', prefix .. "fs", M.find_header_source, { desc = "Find corresponding header/source" })
 end
 
 return M
