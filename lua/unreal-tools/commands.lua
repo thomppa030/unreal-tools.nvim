@@ -8,6 +8,12 @@ function M.setup(config, project)
     return
   end
 
+  vim.api.nvim_create_user_command("UEDiagnosis", function()
+    require('unreal-tools').diagnose()
+  end, {
+    desc = "Shows Plugin Diagnosis"
+  })
+
   vim.api.nvim_create_user_command("UEGenerateCompileCommands", function()
     lsp.generate_compile_commands(config, project)
   end, {
