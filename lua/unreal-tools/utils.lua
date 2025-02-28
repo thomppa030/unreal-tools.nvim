@@ -10,7 +10,7 @@ function M.set_cache(key, value, ttl)
 end
 
 function M.get_cache(key)
-  if M.cache_ttl[key] and os.time > M.cache_ttl[key] then
+  if M.cache_ttl[key] and os.time() > M.cache_ttl[key] then
     M.cache[key] = nil
     M.cache_ttl[key] = nil
     return nil
@@ -85,38 +85,89 @@ function M.dir_exists(path)
   return stat and stat.type == "directory" or false
 end
 
-function M.execute_commands(cmd)
-  local handle = io.popen(cmd)
-  if not handle then return "" end
+function M.execute_command(cmd, opts)
+  opts = opts or {}
+  local timeout_ms = opts.timeout_ms or 5000
+  local show_output = opts.show_output or false
 
-  local result = handle:read("*a")
-  handle:close()
-  return result
+  local tmp_file = os.tmpname()
+  local full_cmd = cmd .. " > " .. tmp_file .. "2>&1"
+
+  local pid = vim.fn.jobstart(full_cmd, {
+    detach = true,
+  })
+
+  if pid <= 0 then
+    os.remove(tmp_file)
+    return nil, "Failed to start command"
+  end
+
+  local start_time = vim.loop.now()
+  local exit_code = nil
+
+  while vim.loop.now() - start_time < timeout_ms do
+    exit_code = vim.fn.jobwait({ pid }, 100)[1]
+    if exit_code ~= -1 then
+      break
+    end
+  end
+
+  if exit_code == -1 then
+    vim.fn.jobstop(pid)
+    os.remove(tmp_file)
+    return nil, "Command timed out after " .. (timeout_ms / 1000) .. " seconds"
+  end
+
+  local file = io.open(tmp_file, "r")
+  local output = ""
+
+  if file then
+    output = file:read("*a")
+    file:close()
+  end
+
+  os.remove(tmp_file)
+
+  if show_output and output ~= "" then
+    vim.notify(output, exit_code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR)
+  end
+
+  return exit_code == 0, output
 end
 
 function M.is_unreal_running(project)
   -- Run the command to find Unreal Engine processes for this project
-  local cmd = "pgrep -f 'UnrealEditor.*" .. project.name .. "'"
-  local handle = io.popen(cmd)
+  local cache_key = "unreal_running:" .. project.name
 
-  if not handle then
-    return false, nil
+  if M.has_cache(cache_key) then
+    return M.get_cache(cache_key)
   end
 
-  local result = handle:read("*a")
-  handle:close()
+  local pids = {}
+  local cmd
 
-  -- If we got a process ID, Unreal is running
-  if result and result ~= "" then
-    -- Split by newlines to handle multiple instances
-    local pids = {}
-    for pid in result:gmatch("([^\n]+)") do
+  local os_name = vim.loop.os_uname().sysname
+  if os_name == "Windows" then
+    cmd = "wmic process where \"caption like 'UnrealEditor%' and commandline like '%" ..
+        project.name .. "%'\" get processid"
+  elseif os_name == "Darwin" then
+    cmd = "pgrep -f 'UnrealEditor.*'" .. project.name .. "'"
+  else
+    cmd = "pgrep -f 'UnrealEditor.*'" .. project.name .. "'"
+  end
+
+  local success, output = M.execute_command(cmd)
+
+  if success and output and output ~= "" then
+    for pid in output:gmatch("(%d+)") do
       table.insert(pids, pid)
     end
-    return true, pids
   end
 
-  return false, nil
+  local result = #pids > 0 --, pids
+  M.set_cache(cache_key, { result, pids }, 5)
+
+  return result, pids
 end
 
 function M.close_unreal(pids)
@@ -126,49 +177,54 @@ function M.close_unreal(pids)
 
   vim.notify("unreal-tools: Closing running Unreal Editor instance(s)...", vim.log.levels.INFO)
 
-  -- First try SIGTERM for a clean shutdown
+  local os_name = vim.loop.os_uname().sysname
+  local cmd_prefix = os_name == "Windows" and "taskkill " or "kill "
+  local force_flag = os_name == "Windows" and "/f " or "-9 "
+
   for _, pid in ipairs(pids) do
-    os.execute("kill " .. pid)
-  end
+    local cmd = cmd_prefix .. pid
+    local success = M.execute_command(cmd)
 
-  -- Give it a few seconds to close cleanly
-  vim.notify("unreal-tools: Waiting for Unreal Editor to close...", vim.log.levels.INFO)
-  vim.cmd("sleep 5000m") -- Sleep for 3 seconds
-
-  -- Check if it's still running
-  for _, pid in ipairs(pids) do
-    local check_cmd = "ps -p " .. pid .. " -o pid="
-    local handle = io.popen(check_cmd)
-    local result = handle:read("*a")
-    handle:close()
-
-    -- If the process is still running, force kill it
-    if result and result ~= "" then
-      vim.notify("unreal-tools: Unreal Editor didn't close gracefully, forcing close...", vim.log.levels.WARN)
-      os.execute("kill -9 " .. pid)
-    else
-      vim.notify("unreal-tools: Unreal Editor closed successfully", vim.log.levels.INFO)
-      return true
+    if not success then
+      vim.notify("unreal-tools: Failed to gracefully close Unreal Editor (PID): " .. pid .. ")", vim.log.levels.WARN)
     end
   end
 
-  -- Give another brief moment for OS to clean up
-  vim.cmd("sleep 1000m") -- Sleep for 1 second
+  vim.defer_fn(function()
+    local still_running = false
 
-  for _, pid in ipairs(pids) do
-    local check_cmd = "ps -p " .. pid .. " -o pid="
-    local handle = io.popen(check_cmd)
-    local result = handle:read("*a")
-    handle:close()
+    for _, pid in ipairs(pids) do
+      local check_cmd
 
-    if result and result ~= "" then
-      vim.notify("unreal-tools: Failed to close Unreal Editor completely", vim.log.levels.ERROR)
-      return false
-    else
-      vim.notify("unreal-tools: Unreal Editor closed successfully", vim.log.levels.INFO)
-      return true
+      if os_name == "Windows" then
+        check_cmd = "tasklist /FI \"PID eq " .. pid .. "\" /NH"
+      else
+        check_cmd = "ps -p " .. pid .. " -o pid="
+      end
+
+      local success, output = M.execute_command(check_cmd)
+
+      if success and output and output:find(pid) then
+        still_running = true
+
+        local force_cmd = cmd_prefix .. force_flag .. pid
+        local force_success, _ = M.execute_command(force_cmd)
+
+        if not force_success then
+          vim.notify("unreal-tools: Failed to gracefully close Unreal Editor (PID): " .. pid .. ")", vim.log.levels.WARN)
+          return false
+        end
+      end
     end
-  end
+
+    if still_running then
+          vim.notify("unreal-tools: Forcefully terminated Unreal Editor processes", vim.log.levels.WARN)
+    else
+          vim.notify("unreal-tools: Unreal Editor closed successfully", vim.log.levels.WARN)
+    end
+  end, 3000)
+
+  return true
 end
 
 return M
