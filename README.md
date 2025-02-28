@@ -25,7 +25,6 @@ A comprehensive Unreal Engine development environment for Neovim.
 - [Engine Path Detection](#engine-path-detection)
 - [Contributing](#contributing)
 - [License](#license)
-- [Acknowledgements](#acknowledgements)
 
 ## Overview
 
@@ -269,9 +268,9 @@ The plugin attempts to find your Unreal Engine installation using:
 This project is currently in early development, and I am focusing on establishing core functionality and architecture. While I appreciate interest in the project, I am not actively seeking code contributions at this time.
 However, I do welcome:
 
-Bug reports and detailed feature requests through GitHub issues
-Documentation improvements
-Testing on different Unreal Engine versions and configurations
+- Bug reports and detailed feature requests through GitHub issues
+- Documentation improvements
+- Testing on different Unreal Engine versions and configurations
 
 Once the plugin reaches a more stable state, I plan to open up for broader community contributions. Feel free to star and watch the repository for updates on when that happens.
 
