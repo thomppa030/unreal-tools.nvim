@@ -15,9 +15,7 @@ Unreal Tools provides Unreal Engine development capabilities within Neovim. It i
 - **Automatic Project Detection**: Automatically detects Unreal Engine projects and configures your environment
 - **LSP Integration**: Seamless clangd integration with UE-specific configurations
 - **Build Tools**: Build and run your UE project directly from Neovim
-- **Header/Source Switching**: Quickly switch between header and source files
 - **Telescope Integration**: Find and navigate UE project files efficiently
-- **Custom Commands**: UE-specific commands to streamline your workflow
 
 ## Requirements
 
@@ -252,8 +250,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-- The Neovim community for their amazing plugins and support
-- Epic Games for Unreal Engine unreal-tools.nvim
