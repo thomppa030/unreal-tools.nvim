@@ -1,10 +1,31 @@
-## Unreal Tools for Neovim
+# Unreal Tools for Neovim
 
 A comprehensive Unreal Engine development environment for Neovim, providing seamless integration with UE projects.
 
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
 ![Neovim Version](https://img.shields.io/badge/Neovim-%3E%3D0.10.0-green)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+  - [Using lazy.nvim](#using-lazynvim)
+  - [Using packer.nvim](#using-packernvim)
+- [Configuration](#configuration)
+  - [Default Configuration](#default-configuration)
+  - [Configuration Options](#configuration-options)
+- [Commands](#commands)
+- [Default Keymaps](#default-keymaps)
+- [Debugging](#debugging)
+- [Reloading the Plugin](#reloading-the-plugin)
+- [Project Detection](#project-detection)
+- [Engine Path Detection](#engine-path-detection)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
 
 ## Overview
 
@@ -245,7 +266,14 @@ The plugin attempts to find your Unreal Engine installation using:
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+This project is currently in early development, and I am focusing on establishing core functionality and architecture. While I appreciate interest in the project, I am not actively seeking code contributions at this time.
+However, I do welcome:
+
+Bug reports and detailed feature requests through GitHub issues
+Documentation improvements
+Testing on different Unreal Engine versions and configurations
+
+Once the plugin reaches a more stable state, I plan to open up for broader community contributions. Feel free to star and watch the repository for updates on when that happens.
 
 ## License
 
