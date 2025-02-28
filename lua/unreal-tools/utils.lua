@@ -1,11 +1,44 @@
 local M = {}
 
+M.cache = {}
+M.cache_ttl = {} -- Time-to-live for cache entries (in seconds)
+M.default_ttl = 300
+
+function M.set_cache(key, value, ttl)
+  M.cache[key] = value
+  M.cache_ttl[key] = os.time() + (ttl or M.default_ttl)
+end
+
+function M.get_cache(key)
+  if M.cache_ttl[key] and os.time > M.cache_ttl[key] then
+    M.cache[key] = nil
+    M.cache_ttl[key] = nil
+    return nil
+  end
+
+  return M.cache[key]
+end
+
+function M.has_cache(key)
+  return M.cache[key] ~= nil and (not M.cache_ttl[key] or os.time() <= M.cache_ttl[key])
+end
+
+function M.clear_cache(key)
+  if key then
+    M.cache[key] = nil
+    M.cache_ttl[key] = nil
+  else
+    M.cache = {}
+    M.cache_ttl = {}
+  end
+end
+
 function M.get_subdirectories(path)
-  local handle = vim.loop.fs_scandir(path)
   local dirs = {}
 
+  local success, handle = pcall(vim.loop.fs_scandir, path)
 
-  if handle then
+  if success and handle then
     while true do
       local name, type = vim.loop.fs_scandir_next(handle)
       if not name then break end
@@ -13,6 +46,25 @@ function M.get_subdirectories(path)
       if type == "directory" then
         table.insert(dirs, name)
       end
+    end
+    return dirs
+  end
+
+  local cmd = "find " .. vim.fn.shellescape(path) .. "-maxdepth 1 -type d -not - path " .. vim.fn.shellescape(path)
+  local handle = io.popen(cmd)
+
+  if not handle then
+    vim.notify("unreal-tools: Failed to scan directory: " .. path, vim.log.levels.ERROR)
+    return {}
+  end
+
+  local result = handle:read("*a")
+  handle:close()
+
+  for dir in result:gmatch("([^\n]+)") do
+    local dir_name = vim.fn.fnamemodify(dir, ":t")
+    if dir_name and dir_name ~= "" then
+      table.insert(dirs, dir_name)
     end
   end
 
@@ -26,6 +78,11 @@ function M.file_exists(path)
     return true
   end
   return false
+end
+
+function M.dir_exists(path)
+  local stat = vim.loop.fs_stat(path)
+  return stat and stat.type == "directory" or false
 end
 
 function M.execute_commands(cmd)
