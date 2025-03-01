@@ -139,9 +139,9 @@ function M.is_unreal_running(project)
   -- Run the command to find Unreal Engine processes for this project
   local cache_key = "unreal_running:" .. project.name
 
-  if M.has_cache(cache_key) then
+  --[[ if M.has_cache(cache_key) then
     return M.get_cache(cache_key)
-  end
+  end ]]
 
   local pids = {}
   local cmd
@@ -151,23 +151,30 @@ function M.is_unreal_running(project)
     cmd = "wmic process where \"caption like 'UnrealEditor%' and commandline like '%" ..
         project.name .. "%'\" get processid"
   elseif os_name == "Darwin" then
-    cmd = "pgrep -f 'UnrealEditor.*'" .. project.name .. "'"
+    cmd = "pgrep -f 'UnrealEditor.*" .. project.name .. "'"
   else
-    cmd = "pgrep -f 'UnrealEditor.*'" .. project.name .. "'"
+    cmd = "pgrep -f 'UnrealEditor.*" .. project.name .. "'"
   end
 
-  local success, output = M.execute_command(cmd)
+  local handle = io.popen(cmd)
 
-  if success and output and output ~= "" then
-    for pid in output:gmatch("(%d+)") do
+  if not handle then
+    return false, nil
+  end
+
+  local result = handle:read("*a")
+  handle:close()
+
+  -- If we got a process ID, Unreal is running
+  if result and result ~= "" then
+    -- Split by newlines to handle multiple instances
+    for pid in result:gmatch("([^\n]+)") do
       table.insert(pids, pid)
     end
+    return true, pids
   end
 
-  local result = #pids > 0 --, pids
-  M.set_cache(cache_key, { result, pids }, 5)
-
-  return result, pids
+  return false, nil
 end
 
 function M.close_unreal(pids)
