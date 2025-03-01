@@ -88,7 +88,7 @@ else
     log "Success: compile_commands.json copied to $PROJECT_DIR/compile_commands.json"
   elif [ -f "$ENGINE_PATH/compile_commands.json" ]; then
     log "Found compile_commands.json in engine directory, linking to project root"
-    ln -sf "$ENGINE_PATH/compile_commands.json" "$PROJECT_DIR/compile_commands.json"
+    cp "$ENGINE_PATH/compile_commands.json" "$PROJECT_DIR/compile_commands.json"
     log "Success: compile_commands.json linked to $PROJECT_DIR/compile_commands.json"
   else
     error "compile_commands.json not found after generation"
