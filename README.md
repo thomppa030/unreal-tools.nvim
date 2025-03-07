@@ -28,7 +28,7 @@ A comprehensive Unreal Engine development environment for Neovim.
 
 ## Overview
 
-Unreal Tools provides Unreal Engine development capabilities within Neovim. It includes project detection, LSP integration, build utilities, and navigation features **currently only on Linux**.
+EditAnywhere provides Unreal Engine development capabilities within Neovim. It includes project detection, LSP integration, build utilities, and navigation features **currently only on Linux**.
 
 ## Features
 
@@ -54,7 +54,7 @@ Unreal Tools provides Unreal Engine development capabilities within Neovim. It i
 
 ```lua
 {
-  "your-username/unreal-tools",
+  "thomppa030/EditAnywhere",
   dependencies = {
     "neovim/nvim-lspconfig",
     "nvim-telescope/telescope.nvim",  -- optional but recommended
@@ -73,7 +73,7 @@ Unreal Tools provides Unreal Engine development capabilities within Neovim. It i
 
 ```lua
 use {
-  "your-username/unreal-tools",
+  "thomppa030/EditAnywhere",
   requires = {
     "neovim/nvim-lspconfig",
     "nvim-telescope/telescope.nvim",  -- optional but recommended
@@ -94,7 +94,7 @@ Unreal Tools comes with sensible defaults, but you can customize it to match you
 ### Default Configuration
 
 ```lua
-local unreal_tools = require('unreal-tools').setup({
+local unreal_tools = require('EditAnywhere').setup({
   ue_paths = {
     os.getenv("HOME") .. "/UnrealEngine",
     "/opt/UnrealEngine",
@@ -225,12 +225,6 @@ If you encounter issues, you can use the built-in diagnostic command:
 :UEDiagnose
 ```
 
-Or call the diagnostic function directly:
-
-```lua
-:lua require('unreal-tools').diagnose()
-```
-
 This will open a buffer with detailed information about your Unreal Tools setup, including:
 - Neovim version
 - Plugin initialization status
@@ -243,7 +237,7 @@ This will open a buffer with detailed information about your Unreal Tools setup,
 If you need to reload the plugin after making configuration changes:
 
 ```lua
-:lua require('unreal-tools').reload()
+:lua require('EditAnywhere').reload()
 ```
 
 ## Project Detection
