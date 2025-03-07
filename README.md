@@ -1,4 +1,4 @@
-# Unreal Tools for Neovim
+# EditAnywhere for Neovim
 
 A comprehensive Unreal Engine development environment for Neovim.
 
