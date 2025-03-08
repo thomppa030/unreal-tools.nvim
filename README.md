@@ -1,4 +1,4 @@
-# EditAnywhere for Neovim
+# Unreal Tools for Neovim
 
 A comprehensive Unreal Engine development environment for Neovim.
 
@@ -28,7 +28,7 @@ A comprehensive Unreal Engine development environment for Neovim.
 
 ## Overview
 
-EditAnywhere provides Unreal Engine development capabilities within Neovim. It includes project detection, LSP integration, build utilities, and navigation features **currently only on Linux**.
+Unreal-Tools provides Unreal Engine development capabilities within Neovim. It includes project detection, LSP integration, build utilities, and navigation features **currently only on Linux**.
 
 ## Features
 
@@ -54,7 +54,7 @@ EditAnywhere provides Unreal Engine development capabilities within Neovim. It i
 
 ```lua
 {
-  "thomppa030/EditAnywhere",
+  "thomppa030/unreal-tools.nvim",
   dependencies = {
     "neovim/nvim-lspconfig",
     "nvim-telescope/telescope.nvim",  -- optional but recommended
@@ -73,7 +73,7 @@ EditAnywhere provides Unreal Engine development capabilities within Neovim. It i
 
 ```lua
 use {
-  "thomppa030/EditAnywhere",
+  "thomppa030/unreal-tools.nvim",
   requires = {
     "neovim/nvim-lspconfig",
     "nvim-telescope/telescope.nvim",  -- optional but recommended
@@ -94,7 +94,7 @@ Unreal Tools comes with sensible defaults, but you can customize it to match you
 ### Default Configuration
 
 ```lua
-local unreal_tools = require('EditAnywhere').setup({
+local unreal_tools = require('unreal-tools').setup({
   ue_paths = {
     os.getenv("HOME") .. "/UnrealEngine",
     "/opt/UnrealEngine",
@@ -237,7 +237,7 @@ This will open a buffer with detailed information about your Unreal Tools setup,
 If you need to reload the plugin after making configuration changes:
 
 ```lua
-:lua require('EditAnywhere').reload()
+:lua require('unreal-tools').reload()
 ```
 
 ## Project Detection
